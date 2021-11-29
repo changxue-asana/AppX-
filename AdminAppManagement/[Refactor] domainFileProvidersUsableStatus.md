@@ -23,6 +23,26 @@
     - [comment_composer.ts](https://github.com/Asana/codez/pull/131619/files#diff-57b69e00414700531caa85ac346bd53df818693987bf91eac850f07eddbd92e7R375)
     - [conversation_composer.ts](https://github.com/Asana/codez/pull/131619/files#diff-50ef85744bd2d139335644734e3d3b9bd74accfbdaebd9460c57beae7eca864dR6)
     - [single_task_pane_toolbar.ts](https://github.com/Asana/codez/pull/131619/files#diff-f05a0dd8b30185eea45cf7946d3c02aa354962a4d20c146b958df23271cf4e4fR340)
-    - [internal_attachments_piles.ts]()
+    - #TODO: [internal_attachments_piles.ts](https://github.com/Asana/codez/blob/next-master/asana2/asana/internal_apps/components/internal_attachments_pile.ts#L171) 
 
-##
+## What need to be done?
+  - For [internal_attachments_piles.ts](https://github.com/Asana/codez/blob/next-master/asana2/asana/internal_apps/components/internal_attachments_pile.ts#L171), the `currentDomainUser` is not available to use
+  - Traced multiple layers up and realized that we might need a `LoadingBoundary`, looked into example using `ApprovedOrBlockedAppsListBoundary`
+  ```
+  -> internal_attachments_piles.ts
+  -> cue_builder_asset_uploader
+    -> cue_builder_modal_settings
+      -> cue_builder_settings_and_preview
+        -> cue_builder_cue_creator
+          -> cue_builder
+            -> cue_builder_root
+              -> cue_builder_client
+                -> class CueBuilderAppRenderer extends AppRenderer
+  ```
+    - Talk with Robyn regarding when we about this specific call site and approaches we want to take
+ - Create a helper method `isFileProviderAppApproved` which takes in a `fileProviderId` and returns the blocking status of that App
+ - Update the following call sites to use the helper method above
+  - `attachment_helpers.allThirdPartyFileAttachmentTypesDisabled`
+  - `third_party_thumbnail._integrationIsEnabled`
+  - `services.integrations.isEnabledNonReactive(IntegrationId` (mostly in add_attachment_button.ts)
+ - Testing with the feature flag on and off
